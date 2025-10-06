@@ -9,6 +9,7 @@ import Arena from './Arena';
 import Player from './Player';
 import Enemy from './Enemy';
 import Hazards from './Hazards';
+import CameraController from './CameraController';
 
 const GameScene = () => {
   const { 
@@ -89,6 +90,13 @@ const GameScene = () => {
 
   return (
     <group>
+      {/* Dynamic Camera Controller */}
+      <CameraController 
+        physics={physicsRef.current}
+        playerBodyIndex={playerBodyIndex}
+        enemyBodyIndex={enemyBodyIndex}
+      />
+
       {/* Arena */}
       <Arena 
         arenaData={arenaData}
