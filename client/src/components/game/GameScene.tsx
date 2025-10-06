@@ -24,7 +24,10 @@ const GameScene = () => {
     updateMatchTimer,
     playerHealth,
     enemyHealth,
-    currentWave
+    currentWave,
+    isPausedOutOfBounds,
+    pauseForOutOfBounds,
+    resumeFromOutOfBounds
   } = useGameStore();
 
   const { effects, removeEffect } = useParticleStore();
@@ -70,6 +73,9 @@ const GameScene = () => {
 
   useFrame((state, delta) => {
     if (!isMatchActive) return;
+    
+    // Don't update physics if paused due to out of bounds
+    if (isPausedOutOfBounds) return;
 
     // Update physics
     physicsRef.current.update(delta);
@@ -77,26 +83,34 @@ const GameScene = () => {
     // Update match timer
     updateMatchTimer(delta);
 
-    // Check boundary elimination
+    // Check boundary violations
     const playerBody = physicsRef.current.getBody(playerBodyIndex);
     const enemyBody = physicsRef.current.getBody(enemyBodyIndex);
 
     if (playerBody && physicsRef.current.isOutOfBounds(playerBody.position)) {
-      endMatch(false);
+      console.log('Player went out of bounds! Pausing game...');
+      pauseForOutOfBounds('player');
+      
+      // Bring player back to safe position after a short delay
+      setTimeout(() => {
+        playerBody.position.set(0, 0, 5);
+        playerBody.velocity.set(0, 0, 0);
+        playerBody.acceleration.set(0, 0, 0);
+        resumeFromOutOfBounds();
+      }, 2000);
     }
 
     if (enemyBody && physicsRef.current.isOutOfBounds(enemyBody.position)) {
-      // Play elimination sound
-      playSuccess();
+      console.log('Enemy went out of bounds! Pausing game...');
+      pauseForOutOfBounds('enemy');
       
-      // In endless mode, respawn enemy for next wave
-      if (useGameStore.getState().gameMode === 'endless') {
-        console.log('Enemy eliminated by boundary! Advancing to next wave...');
-        useGameStore.getState().nextWave();
-        setEnemyKey(prev => prev + 1); // Force enemy respawn
-      } else {
-        endMatch(true);
-      }
+      // Bring enemy back to safe position after a short delay
+      setTimeout(() => {
+        enemyBody.position.set(0, 0, -5);
+        enemyBody.velocity.set(0, 0, 0);
+        enemyBody.acceleration.set(0, 0, 0);
+        resumeFromOutOfBounds();
+      }, 2000);
     }
   });
 

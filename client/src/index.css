@@ -28,3 +28,12 @@ canvas {
   height: 100% !important;
   touch-action: none;
 }
+
+@keyframes loading {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}

@@ -26,6 +26,8 @@ export interface GameStore {
   currentWave: number;
   matchTimer: number;
   isMatchActive: boolean;
+  isPausedOutOfBounds: boolean;
+  outOfBoundsCharacter: 'player' | 'enemy' | null;
   lastMatchResult: {
     victory: boolean;
     rewards: number;
@@ -47,6 +49,8 @@ export interface GameStore {
   setGameMode: (mode: GameMode) => void;
   setCurrentArena: (arena: number) => void;
   selectCharacter: (characterId: string) => void;
+  pauseForOutOfBounds: (character: 'player' | 'enemy') => void;
+  resumeFromOutOfBounds: () => void;
   
   // Player data actions
   addStardust: (amount: number) => void;
@@ -95,6 +99,8 @@ export const useGameStore = create<GameStore>()(
     currentWave: 1,
     matchTimer: 0,
     isMatchActive: false,
+    isPausedOutOfBounds: false,
+    outOfBoundsCharacter: null,
     lastMatchResult: null,
     
     playerData: defaultPlayerData,
@@ -110,6 +116,16 @@ export const useGameStore = create<GameStore>()(
     setGameMode: (mode) => set({ gameMode: mode }),
     setCurrentArena: (arena) => set({ currentArena: arena }),
     selectCharacter: (characterId) => set({ selectedCharacter: characterId }),
+    
+    pauseForOutOfBounds: (character) => set({ 
+      isPausedOutOfBounds: true, 
+      outOfBoundsCharacter: character 
+    }),
+    
+    resumeFromOutOfBounds: () => set({ 
+      isPausedOutOfBounds: false, 
+      outOfBoundsCharacter: null 
+    }),
     
     // Player data actions
     addStardust: (amount) => set((state) => ({

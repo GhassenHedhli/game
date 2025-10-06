@@ -17,7 +17,9 @@ const GameUI = () => {
     currentWave,
     lastMatchResult,
     addStardust,
-    playerData
+    playerData,
+    isPausedOutOfBounds,
+    outOfBoundsCharacter
   } = useGameStore();
   
   const { 
@@ -83,6 +85,51 @@ const GameUI = () => {
       }
     );
   };
+
+  // Out of Bounds Pause Screen
+  if (isPausedOutOfBounds && isMatchActive) {
+    return (
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+        <div className="bg-gradient-to-br from-orange-900 to-red-900 p-12 rounded-2xl text-center space-y-6 max-w-lg border-4 border-orange-500/50 shadow-2xl animate-pulse">
+          {/* Warning Icon */}
+          <div className="text-8xl animate-bounce">⚠️</div>
+          
+          {/* Title */}
+          <div className="space-y-2">
+            <h2 className="text-5xl font-bold text-orange-300">Out of Bounds!</h2>
+            <p className="text-orange-100 text-xl">
+              {outOfBoundsCharacter === 'player' ? 'You' : 'Your opponent'} drifted too far from the arena!
+            </p>
+          </div>
+
+          {/* Status Message */}
+          <div className="bg-black/40 rounded-lg p-6 space-y-3">
+            <div className="text-white text-lg font-semibold">
+              🔄 Returning to Arena...
+            </div>
+            <div className="text-orange-200 text-sm">
+              Repositioning {outOfBoundsCharacter === 'player' ? 'your gladiator' : 'the enemy'} to safe zone
+            </div>
+            
+            {/* Loading Bar */}
+            <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+              <div 
+                className="bg-gradient-to-r from-orange-500 to-red-500 h-3 rounded-full animate-[loading_2s_ease-in-out]"
+                style={{ width: '100%' }}
+              />
+            </div>
+          </div>
+
+          {/* Info */}
+          <div className="bg-yellow-900/30 rounded-lg p-4 border border-yellow-500/40">
+            <div className="text-yellow-300 text-sm">
+              💡 <strong>Tip:</strong> Stay within the glowing arena boundary to avoid being reset!
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!isMatchActive) {
     const result = lastMatchResult;
