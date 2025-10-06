@@ -44,34 +44,91 @@ const Arena = ({ arenaData, physics, onHazardBodies }: ArenaProps) => {
 
   return (
     <group>
-      {/* Arena floor grid */}
+      {/* Enhanced floor grid with glowing effect */}
       <gridHelper 
-        args={[30, 30, arenaData.hazardColors.lasers || '#444444', '#222222']} 
-        position={[0, -10, 0]}
+        args={[40, 40, arenaData.hazardColors.lasers || '#00d4ff', '#001122']} 
+        position={[0, -12, 0]}
+      />
+      
+      {/* Secondary smaller grid for detail */}
+      <gridHelper 
+        args={[40, 80, '#003355', '#000000']} 
+        position={[0, -11.8, 0]}
       />
 
-      {/* Arena walls (visual only, physics handled above) */}
+      {/* Glowing arena boundary sphere */}
+      <mesh>
+        <sphereGeometry args={[22, 32, 32]} />
+        <meshStandardMaterial 
+          color={arenaData.backgroundColor}
+          transparent 
+          opacity={0.15}
+          side={THREE.BackSide}
+          emissive={arenaData.backgroundColor}
+          emissiveIntensity={0.3}
+          wireframe={true}
+        />
+      </mesh>
+
+      {/* Energy field walls with animated glow */}
       {[
-        [15, 0, 0, [1, 30, 30]], [-15, 0, 0, [1, 30, 30]], // Sides
-        [0, 15, 0, [30, 1, 30]], [0, -15, 0, [30, 1, 30]], // Top/Bottom
-        [0, 0, 15, [30, 30, 1]], [0, 0, -15, [30, 30, 1]]  // Front/Back
+        [18, 0, 0, [0.5, 36, 36]], [-18, 0, 0, [0.5, 36, 36]], // Sides
+        [0, 18, 0, [36, 0.5, 36]], [0, -18, 0, [36, 0.5, 36]], // Top/Bottom
+        [0, 0, 18, [36, 36, 0.5]], [0, 0, -18, [36, 36, 0.5]]  // Front/Back
       ].map(([x, y, z, size], index) => (
         <mesh key={index} position={[x, y, z] as [number, number, number]}>
           <boxGeometry args={size as [number, number, number]} />
-          <meshBasicMaterial 
-            color={arenaData.backgroundColor}
+          <meshStandardMaterial 
+            color={arenaData.hazardColors.lasers || '#00ffff'}
             transparent 
-            opacity={0.3}
+            opacity={0.2}
             side={THREE.DoubleSide}
+            emissive={arenaData.hazardColors.lasers || '#00ffff'}
+            emissiveIntensity={0.5}
           />
         </mesh>
       ))}
 
-      {/* Arena name display */}
-      <mesh position={[0, 12, -14]}>
-        <planeGeometry args={[8, 2]} />
-        <meshBasicMaterial color="#000000" transparent opacity={0.7} />
-      </mesh>
+      {/* Corner energy nodes */}
+      {[
+        [15, 15, 15], [-15, 15, 15], [15, -15, 15], [-15, -15, 15],
+        [15, 15, -15], [-15, 15, -15], [15, -15, -15], [-15, -15, -15]
+      ].map(([x, y, z], index) => (
+        <mesh key={`node-${index}`} position={[x, y, z] as [number, number, number]}>
+          <sphereGeometry args={[0.6, 16, 16]} />
+          <meshStandardMaterial 
+            color="#00ffff"
+            emissive="#00ffff"
+            emissiveIntensity={1.5}
+            transparent
+            opacity={0.8}
+          />
+        </mesh>
+      ))}
+
+      {/* Floating space debris for atmosphere */}
+      {Array.from({ length: 15 }).map((_, i) => {
+        const angle = (i / 15) * Math.PI * 2;
+        const radius = 25 + Math.random() * 5;
+        return (
+          <mesh 
+            key={`debris-${i}`} 
+            position={[
+              Math.cos(angle) * radius,
+              (Math.random() - 0.5) * 30,
+              Math.sin(angle) * radius
+            ]}
+            rotation={[Math.random() * Math.PI, Math.random() * Math.PI, 0]}
+          >
+            <boxGeometry args={[0.3, 0.3, 0.3]} />
+            <meshStandardMaterial 
+              color="#333333"
+              metalness={0.8}
+              roughness={0.2}
+            />
+          </mesh>
+        );
+      })}
     </group>
   );
 };

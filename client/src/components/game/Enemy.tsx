@@ -240,62 +240,109 @@ const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProp
 
   return (
     <group ref={meshRef}>
-      {/* 3D Enemy Gladiator Model */}
+      {/* 3D Enemy Gladiator Model with enhanced rendering */}
       <primitive 
         object={scene.clone()} 
-        scale={2.5}
+        scale={2.8}
         rotation={[0, 0, 0]}
+        castShadow
+        receiveShadow
       />
       
-      {/* Red enemy tint overlay */}
-      <mesh scale={[2, 2, 2]}>
-        <sphereGeometry args={[0.6, 16, 16]} />
-        <meshLambertMaterial 
-          color="#ff4444"
+      {/* Enhanced red enemy energy sphere */}
+      <mesh scale={[2.2, 2.2, 2.2]}>
+        <sphereGeometry args={[0.7, 24, 24]} />
+        <meshStandardMaterial 
+          color="#ff3333"
           transparent
-          opacity={0.25}
+          opacity={aiState === 'attack' ? 0.45 : 0.28}
           emissive="#ff0000"
-          emissiveIntensity={0.4}
+          emissiveIntensity={aiState === 'attack' ? 1.2 : 0.5}
+          metalness={0.3}
+          roughness={0.7}
         />
       </mesh>
       
-      {/* AI State indicator */}
-      <mesh position={[0, 3, 0]}>
-        <sphereGeometry args={[0.3, 6, 6]} />
-        <meshBasicMaterial 
+      {/* AI State indicator with glow */}
+      <mesh position={[0, 3.5, 0]}>
+        <sphereGeometry args={[0.4, 12, 12]} />
+        <meshStandardMaterial 
           color={
             aiState === 'attack' ? '#ff0000' :
             aiState === 'approach' ? '#ffaa00' :
-            aiState === 'retreat' ? '#0088ff' : '#888888'
+            aiState === 'retreat' ? '#0088ff' : '#666666'
           }
+          emissive={
+            aiState === 'attack' ? '#ff0000' :
+            aiState === 'approach' ? '#ffaa00' :
+            aiState === 'retreat' ? '#0088ff' : '#444444'
+          }
+          emissiveIntensity={1.2}
           transparent 
-          opacity={0.7}
+          opacity={0.8}
         />
       </mesh>
 
-      {/* Aggressive energy aura */}
-      <mesh scale={[2.2, 2.2, 2.2]}>
-        <sphereGeometry args={[0.65, 12, 12]} />
+      {/* Aggressive energy aura with enhanced glow */}
+      <mesh scale={[2.4, 2.4, 2.4]}>
+        <sphereGeometry args={[0.75, 16, 16]} />
         <meshBasicMaterial 
           color="#ff4444" 
           transparent 
-          opacity={aiState === 'attack' ? 0.2 : 0.1}
+          opacity={aiState === 'attack' ? 0.18 : 0.12}
           wireframe
         />
       </mesh>
+      
+      {/* Outer hostile field */}
+      <mesh scale={[2.6, 2.6, 2.6]}>
+        <sphereGeometry args={[0.8, 12, 12]} />
+        <meshBasicMaterial 
+          color="#ff0000" 
+          transparent 
+          opacity={aiState === 'attack' ? 0.1 : 0.06}
+          side={THREE.BackSide}
+        />
+      </mesh>
 
-      {/* Attack range indicator */}
+      {/* Attack range indicator with pulse effect */}
       {aiState === 'attack' && (
-        <mesh>
-          <sphereGeometry args={[3.5, 16, 16]} />
-          <meshBasicMaterial 
-            color="#ff0000" 
-            transparent 
-            opacity={0.1}
-            wireframe
-          />
-        </mesh>
+        <>
+          <mesh>
+            <sphereGeometry args={[3.8, 24, 24]} />
+            <meshStandardMaterial 
+              color="#ff0000" 
+              transparent 
+              opacity={0.15}
+              wireframe
+              emissive="#ff0000"
+              emissiveIntensity={0.5}
+            />
+          </mesh>
+          
+          {/* Attack warning ring */}
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[3.5, 0.15, 8, 32]} />
+            <meshBasicMaterial 
+              color="#ff0000" 
+              transparent 
+              opacity={0.6}
+            />
+          </mesh>
+        </>
       )}
+
+      {/* Enemy directional indicator */}
+      <mesh position={[0, 0, 1.8]} scale={[0.3, 0.3, 0.8]}>
+        <coneGeometry args={[0.5, 1.2, 8]} />
+        <meshStandardMaterial 
+          color="#ff3333"
+          emissive="#ff0000"
+          emissiveIntensity={0.8}
+          transparent
+          opacity={0.7}
+        />
+      </mesh>
     </group>
   );
 };

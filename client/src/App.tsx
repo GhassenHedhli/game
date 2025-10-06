@@ -42,27 +42,44 @@ function App() {
             <Canvas
               shadows
               camera={{
-                position: [0, 5, 10],
-                fov: 60,
+                position: [0, 5, 20],
+                fov: 75,
                 near: 0.1,
                 far: 1000
               }}
               gl={{
                 antialias: true,
-                powerPreference: "high-performance"
+                powerPreference: "high-performance",
+                alpha: false
               }}
             >
-              <color attach="background" args={["#000814"]} />
+              <color attach="background" args={["#000000"]} />
+              <fog attach="fog" args={["#000428", 30, 80]} />
               
-              {/* Ambient lighting for zero-g space environment */}
-              <ambientLight intensity={0.3} />
+              {/* Enhanced lighting for dramatic space arena */}
+              <ambientLight intensity={0.2} />
+              
+              {/* Main dramatic key light */}
               <directionalLight 
-                position={[10, 10, 10]} 
-                intensity={0.8} 
+                position={[15, 20, 10]} 
+                intensity={1.2} 
+                color="#ffffff"
                 castShadow
-                shadow-mapSize={[1024, 1024]}
+                shadow-mapSize={[2048, 2048]}
+                shadow-camera-far={50}
+                shadow-camera-left={-30}
+                shadow-camera-right={30}
+                shadow-camera-top={30}
+                shadow-camera-bottom={-30}
               />
-              <pointLight position={[0, 0, 0]} intensity={0.5} color="#00ffff" />
+              
+              {/* Colored accent lights for atmosphere */}
+              <pointLight position={[-10, 8, 0]} intensity={0.8} color="#00d4ff" distance={30} />
+              <pointLight position={[10, -8, 0]} intensity={0.8} color="#ff00ff" distance={30} />
+              <pointLight position={[0, 0, 15]} intensity={0.6} color="#00ff88" distance={25} />
+              
+              {/* Center arena glow */}
+              <pointLight position={[0, 0, 0]} intensity={0.4} color="#00ffff" distance={20} />
 
               <Suspense fallback={null}>
                 <GameScene />

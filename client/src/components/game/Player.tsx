@@ -178,45 +178,86 @@ const Player = ({ character, physics, onBodyCreated, enemyBodyIndex }: PlayerPro
 
   return (
     <group ref={meshRef}>
-      {/* 3D Gladiator Model */}
+      {/* 3D Gladiator Model with enhanced rendering */}
       <primitive 
         object={scene.clone()} 
-        scale={2.5}
+        scale={2.8}
         rotation={[0, 0, 0]}
+        castShadow
+        receiveShadow
       />
       
-      {/* Color tint overlay */}
-      <mesh scale={[2, 2, 2]}>
-        <sphereGeometry args={[0.6, 16, 16]} />
-        <meshLambertMaterial 
+      {/* Enhanced color energy sphere */}
+      <mesh scale={[2.2, 2.2, 2.2]}>
+        <sphereGeometry args={[0.7, 24, 24]} />
+        <meshStandardMaterial 
           color={character.color}
           transparent
-          opacity={isCharging ? 0.3 + (charge / 100) * 0.2 : 0.2}
+          opacity={isCharging ? 0.4 + (charge / 100) * 0.3 : 0.25}
           emissive={character.color}
-          emissiveIntensity={0.3}
+          emissiveIntensity={isCharging ? 0.8 : 0.4}
+          metalness={0.3}
+          roughness={0.7}
         />
       </mesh>
       
-      {/* Charge indicator */}
+      {/* Charge indicator with enhanced effects */}
       {isCharging && (
-        <mesh position={[0, 3, 0]}>
-          <sphereGeometry args={[0.5 + (charge / 100), 8, 8]} />
-          <meshBasicMaterial 
-            color="#ffff00" 
-            transparent 
-            opacity={0.3 + (charge / 100) * 0.4}
-          />
-        </mesh>
+        <>
+          <mesh position={[0, 3.5, 0]}>
+            <sphereGeometry args={[0.6 + (charge / 100) * 0.8, 16, 16]} />
+            <meshStandardMaterial 
+              color="#ffff00" 
+              transparent 
+              opacity={0.4 + (charge / 100) * 0.5}
+              emissive="#ffff00"
+              emissiveIntensity={1.5 + (charge / 100)}
+            />
+          </mesh>
+          
+          {/* Charging energy rings */}
+          <mesh position={[0, 3.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[1 + (charge / 100), 0.1, 8, 32]} />
+            <meshBasicMaterial 
+              color="#ffaa00" 
+              transparent 
+              opacity={0.6}
+            />
+          </mesh>
+        </>
       )}
 
-      {/* Energy aura during movement */}
-      <mesh scale={[2.2, 2.2, 2.2]}>
-        <sphereGeometry args={[0.65, 12, 12]} />
+      {/* Enhanced energy aura with glow */}
+      <mesh scale={[2.4, 2.4, 2.4]}>
+        <sphereGeometry args={[0.75, 16, 16]} />
         <meshBasicMaterial 
           color={character.color} 
           transparent 
-          opacity={0.1}
+          opacity={0.12}
           wireframe
+        />
+      </mesh>
+      
+      {/* Outer energy field */}
+      <mesh scale={[2.6, 2.6, 2.6]}>
+        <sphereGeometry args={[0.8, 12, 12]} />
+        <meshBasicMaterial 
+          color={character.color} 
+          transparent 
+          opacity={0.06}
+          side={THREE.BackSide}
+        />
+      </mesh>
+
+      {/* Player directional indicator */}
+      <mesh position={[0, 0, 1.8]} scale={[0.3, 0.3, 0.8]}>
+        <coneGeometry args={[0.5, 1.2, 8]} />
+        <meshStandardMaterial 
+          color={character.color}
+          emissive={character.color}
+          emissiveIntensity={0.6}
+          transparent
+          opacity={0.7}
         />
       </mesh>
     </group>
