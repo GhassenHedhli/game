@@ -3,6 +3,7 @@ import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 
 import { useGameStore } from '../../lib/stores/useGameStore';
+import { useParticleStore } from '../../lib/stores/useParticleStore';
 import { ZeroGravityPhysics } from '../../lib/physics';
 import { CHARACTERS, ARENAS } from '../../lib/gameData';
 import Arena from './Arena';
@@ -10,6 +11,7 @@ import Player from './Player';
 import Enemy from './Enemy';
 import Hazards from './Hazards';
 import CameraController from './CameraController';
+import ParticleEffects from './ParticleEffects';
 
 const GameScene = () => {
   const { 
@@ -23,6 +25,8 @@ const GameScene = () => {
     enemyHealth,
     currentWave
   } = useGameStore();
+
+  const { effects, removeEffect } = useParticleStore();
 
   const physicsRef = useRef(new ZeroGravityPhysics());
   const [playerBodyIndex, setPlayerBodyIndex] = useState<number>(-1);
@@ -126,6 +130,12 @@ const GameScene = () => {
         physics={physicsRef.current}
         onBodyCreated={setEnemyBodyIndex}
         playerBodyIndex={playerBodyIndex}
+      />
+
+      {/* Particle Effects */}
+      <ParticleEffects 
+        effects={effects}
+        onEffectComplete={removeEffect}
       />
 
       {/* Arena boundaries visualization */}

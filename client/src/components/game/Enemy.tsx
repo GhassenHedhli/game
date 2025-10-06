@@ -6,6 +6,7 @@ import { ZeroGravityPhysics } from '../../lib/physics';
 import { Character, getMovementStats, calculateForce } from '../../lib/gameData';
 import { useGameStore } from '../../lib/stores/useGameStore';
 import { useAudio } from '../../lib/stores/useAudio';
+import { useParticleStore, createImpactParticles } from '../../lib/stores/useParticleStore';
 
 interface EnemyProps {
   character: Character;
@@ -23,6 +24,7 @@ const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProp
 
   const { setPlayerHealth, playerHealth, currentWave, gameMode } = useGameStore();
   const { playHit } = useAudio();
+  const { addEffect } = useParticleStore();
 
   const movementStats = getMovementStats(character);
   
@@ -197,6 +199,11 @@ const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProp
 
     // Play hit sound
     playHit();
+
+    // Create impact particles at player position
+    const impactColor = new THREE.Color('#ff0000');
+    const particles = createImpactParticles(playerBody.position, impactColor, 20);
+    addEffect(particles);
 
     console.log(`Enemy attack: Force: ${force.toFixed(2)}, Damage: ${damage}`);
   };

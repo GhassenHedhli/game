@@ -7,6 +7,7 @@ import { ZeroGravityPhysics } from '../../lib/physics';
 import { Character, getMovementStats, calculateForce } from '../../lib/gameData';
 import { useGameStore } from '../../lib/stores/useGameStore';
 import { useAudio } from '../../lib/stores/useAudio';
+import { useParticleStore, createImpactParticles } from '../../lib/stores/useParticleStore';
 
 interface PlayerProps {
   character: Character;
@@ -23,6 +24,7 @@ const Player = ({ character, physics, onBodyCreated, enemyBodyIndex }: PlayerPro
 
   const { setPlayerCharge, setEnemyHealth, enemyHealth } = useGameStore();
   const { playHit } = useAudio();
+  const { addEffect } = useParticleStore();
 
   // Get keyboard controls
   const [, get] = useKeyboardControls();
@@ -137,6 +139,12 @@ const Player = ({ character, physics, onBodyCreated, enemyBodyIndex }: PlayerPro
 
     // Play hit sound
     playHit();
+
+    // Create impact particles at enemy position
+    const impactColor = isCharged ? new THREE.Color('#ffff00') : new THREE.Color('#ff6600');
+    const particleCount = isCharged ? 30 : 20;
+    const particles = createImpactParticles(enemyBody.position, impactColor, particleCount);
+    addEffect(particles);
 
     console.log(`Player attack: ${isCharged ? 'Charged' : 'Basic'}, Force: ${force.toFixed(2)}, Damage: ${damage}`);
   };
