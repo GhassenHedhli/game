@@ -26,6 +26,11 @@ export interface GameStore {
   currentWave: number;
   matchTimer: number;
   isMatchActive: boolean;
+  lastMatchResult: {
+    victory: boolean;
+    rewards: number;
+    wave: number;
+  } | null;
 
   // Player data
   playerData: PlayerData;
@@ -88,6 +93,7 @@ export const useGameStore = create<GameStore>()(
     currentWave: 1,
     matchTimer: 0,
     isMatchActive: false,
+    lastMatchResult: null,
     
     playerData: defaultPlayerData,
     selectedCharacter: "balanced",
@@ -160,6 +166,11 @@ export const useGameStore = create<GameStore>()(
       
       set((prevState) => ({
         isMatchActive: false,
+        lastMatchResult: {
+          victory,
+          rewards,
+          wave: prevState.currentWave
+        },
         playerData: {
           ...prevState.playerData,
           stardust: prevState.playerData.stardust + rewards,

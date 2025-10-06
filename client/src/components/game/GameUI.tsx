@@ -12,7 +12,8 @@ const GameUI = () => {
     setGameState,
     isMatchActive,
     gameMode,
-    currentWave
+    currentWave,
+    lastMatchResult
   } = useGameStore();
 
   const character = CHARACTERS[selectedCharacter];
@@ -25,16 +26,50 @@ const GameUI = () => {
   };
 
   if (!isMatchActive) {
+    const result = lastMatchResult;
+    
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-gray-900 p-8 rounded-lg text-center space-y-4 max-w-md">
-          <h2 className="text-2xl font-bold text-white">Match Over</h2>
-          <div className="text-white/80">
-            Final Time: {formatTime(matchTimer)}
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-10 rounded-2xl text-center space-y-6 max-w-md border-2 border-gray-700 shadow-2xl">
+          {/* Victory/Defeat Header */}
+          {result?.victory ? (
+            <div className="space-y-2">
+              <div className="text-6xl">🏆</div>
+              <h2 className="text-4xl font-bold text-yellow-400">Victory!</h2>
+              <p className="text-cyan-400 text-lg">Gladiator Triumphant</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="text-6xl">💀</div>
+              <h2 className="text-4xl font-bold text-red-400">Defeated</h2>
+              <p className="text-gray-400 text-lg">The Arena Claimed You</p>
+            </div>
+          )}
+
+          {/* Match Stats */}
+          <div className="bg-black/40 rounded-lg p-4 space-y-3">
+            {gameMode === 'endless' && result && (
+              <div className="flex justify-between items-center border-b border-gray-700 pb-2">
+                <span className="text-white/60">Wave Reached:</span>
+                <span className="text-cyan-400 font-bold text-xl">Wave {result.wave}</span>
+              </div>
+            )}
+            {gameMode !== 'endless' && (
+              <div className="flex justify-between items-center border-b border-gray-700 pb-2">
+                <span className="text-white/60">Time:</span>
+                <span className="text-white font-mono font-bold">{formatTime(matchTimer)}</span>
+              </div>
+            )}
+            <div className="flex justify-between items-center">
+              <span className="text-white/60">Stardust Earned:</span>
+              <span className="text-yellow-400 font-bold text-xl">+{result?.rewards || 0} ✨</span>
+            </div>
           </div>
+
+          {/* Continue Button */}
           <button
             onClick={() => setGameState('menu')}
-            className="px-6 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-500 transition-colors"
+            className="w-full px-8 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold rounded-lg hover:from-cyan-500 hover:to-blue-500 transition-all transform hover:scale-105 shadow-lg"
           >
             Return to Menu
           </button>
