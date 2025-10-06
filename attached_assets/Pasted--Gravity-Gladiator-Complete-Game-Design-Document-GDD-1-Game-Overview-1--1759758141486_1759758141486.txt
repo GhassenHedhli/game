@@ -1,0 +1,376 @@
+# **Gravity Gladiator - Complete Game Design Document (GDD)**
+
+## **1. Game Overview**
+
+### **1.1 Concept Statement**
+"Gravity Gladiator" is a physics-based arcade fighter where players control unique gladiators in zero-gravity arenas, using momentum and environmental hazards to knock out opponents. The game combines simple controls with deep physics-based strategy, designed for quick sessions with high replayability on the GamePix platform.
+
+### **1.2 Target Audience**
+- **Primary:** Casual gamers aged 16-35
+- **Platform:** GamePix (web-based)
+- **Session Length:** 3-7 minutes
+- **Skill Level:** Easy to learn, difficult to master
+
+### **1.3 Key Features**
+- Physics-based combat in zero-gravity
+- 12 unique gladiators with different stats
+- 8 interactive arenas with environmental hazards
+- Simple dual-stick controls
+- Progressive difficulty AI opponents
+- GamePix-integrated monetization system
+
+---
+
+## **2. Core Gameplay**
+
+### **2.1 Game Modes**
+
+#### **Arcade Mode** (Primary)
+- Fight through 8 increasingly difficult opponents
+- One life, game over when eliminated
+- Earn bonus "Stardust" for quick victories and multi-knockouts
+
+#### **Endless Mode**
+- Survive against endless waves of opponents
+- Difficulty increases every 5 waves
+- High score leaderboard
+
+#### **Daily Challenge**
+- Unique rules and modifiers each day
+- Special rewards for completion
+
+### **2.2 Core Mechanics**
+
+#### **Movement Physics**
+```
+Zero-G Movement Rules:
+- Continuous momentum until friction applies force
+- Maximum velocity cap based on gladiator weight
+- Turning requires counter-thrust (realistic space movement)
+- Collisions transfer momentum based on mass ratio
+```
+
+#### **Combat System**
+```
+Attack Types:
+- Basic Punch: Quick, low force
+- Charged Slam: Hold to charge, high force
+- Environmental Attacks: Use hazards as weapons
+
+Force Calculation:
+Final Force = (Base Attack Power × Charge Multiplier) ÷ (Target Weight × 0.1)
+```
+
+#### **Elimination Conditions**
+- Contact with arena hazards (instant)
+- Exit arena boundaries (3-second warning first)
+- Health system (optional for harder modes)
+
+---
+
+## **3. Character System**
+
+### **3.1 Gladiator Stats**
+Each gladiator has 4 core attributes:
+
+| Stat | Range | Effect |
+|------|-------|--------|
+| **Weight** | 1-10 | Affects knockback resistance and movement speed |
+| **Power** | 1-10 | Base attack force multiplier |
+| **Agility** | 1-10 | Turning speed and acceleration |
+| **Health** | 100-200 | Hit points (hard mode only) |
+
+### **3.2 Gladiator Roster**
+
+#### **Starting Characters** (Unlocked by default)
+1. **Swift** (Weight: 3, Power: 4, Agility: 8)
+2. **Brute** (Weight: 8, Power: 7, Agility: 2)
+3. **Balanced** (Weight: 5, Power: 5, Agility: 5)
+
+#### **Unlockable Characters**
+- **Titan** (Legendary): Weight 10, Power 9, Agility 1 - Cost: 100 Gems
+- **Ninja** (Rare): Weight 2, Power 3, Agility 10 - Cost: 500 Stardust
+- **Crusher** (Epic): Weight 7, Power 8, Agility 3 - Cost: 800 Stardust
+- **6 additional characters** with unique stat distributions
+
+---
+
+## **4. Arena Design**
+
+### **4.1 Arena Progression**
+
+| Level | Arena Name | Hazards | Difficulty |
+|-------|------------|---------|------------|
+| 1 | Basic Box | None | Tutorial |
+| 2 | Laser Grid | Moving laser walls | Easy |
+| 3 | Piston Pit | Crushing pistons | Easy |
+| 4 | Spike Sphere | Rotating spike balls | Medium |
+| 5 | Crusher Colosseum | Rhythmic crushers | Medium |
+| 6 | Vortex Void | Gravity vortex center | Hard |
+| 7 | Electro Arena | Random lightning strikes | Hard |
+| 8 | Chaos Chamber | All hazards combined | Expert |
+
+### **4.2 Hazard Types**
+- **Instant Kill:** Lasers, Crushers, Spikes
+- **Force Application:** Bumpers, Explosive barrels
+- **Environmental:** Moving platforms, Vortex gravity wells
+
+---
+
+## **5. Progression & Economy**
+
+### **5.1 Currency System**
+
+#### **Stardust (Earnable Currency)**
+- **Earned from:** Match victories, Daily challenges, Achievements
+- **Used for:** Unlocking standard gladiators and arenas
+
+#### **Gems (Premium Currency)**
+- **Earned from:** In-app purchase, Rewarded ads
+- **Used for:** Unlocking legendary gladiators, Special skins
+
+### **5.2 Unlock Costs**
+
+#### **Characters**
+- Rare Characters: 400-600 Stardust
+- Epic Characters: 700-900 Stardust  
+- Legendary Characters: 80-120 Gems
+
+#### **Arenas**
+- Levels 3-5: 200-400 Stardust each
+- Levels 6-8: 500-700 Stardust each
+
+### **5.3 Achievement System**
+- "First Blood" - Win first match: 50 Stardust
+- "Arena Master" - Unlock all arenas: 200 Stardust
+- "Gladiator Collector" - Unlock 8 characters: 300 Stardust
+- "Untouchable" - Win without taking damage: 25 Gems
+
+---
+
+## **6. Monetization & GamePix Integration**
+
+### **6.1 Advertising Implementation**
+
+#### **Interstitial Ads**
+- **Frequency:** Every 3 game sessions (arcade/endless runs)
+- **Trigger:** Returning to main menu after match completion
+- **Placement:** Seamless transition with "Loading..." screen
+
+#### **Rewarded Video Ads**
+- **Option 1:** "Double Stardust" after match victory
+- **Option 2:** "Continue Run" after elimination (Endless Mode)
+- **Option 3:** "Earn Gems" - 30 Gems per ad (max 5 per day)
+- **Option 4:** "Free Spin" - Random character unlock chance
+
+### **6.2 In-App Purchases (GamePix Payment System)**
+
+#### **Gem Packages**
+- **Starter Pack:** 50 Gems - $0.99
+- **Gladiator Pack:** 150 Gems - $2.99
+- **Champion Pack:** 500 Gems - $9.99
+- **Titan Pack:** 1200 Gems - $19.99
+
+#### **Special Offers**
+- "Arena Unlock Bundle" - All arenas + 100 Gems - $4.99
+- "Starter Bundle" - 3 rare characters + 200 Gems - $3.99
+
+### **6.3 Developer Payment Flow**
+```
+GamePix Revenue Flow:
+1. Player purchases Gems via GamePix payment overlay
+2. GamePix processes payment (various methods)
+3. Revenue shared: 70% developer / 30% GamePix
+4. Monthly payout to developer's PayPal account
+5. Ad revenue calculated separately, combined in payout
+```
+
+---
+
+## **7. Technical Specifications**
+
+### **7.1 Core Game Loop**
+
+```javascript
+// PSEUDOCODE - Main Game Flow
+class GravityGladiatorGame {
+    constructor() {
+        this.gameState = 'MENU';
+        this.playerData = new PlayerData();
+        this.adManager = new GamePixAdManager();
+    }
+    
+    mainUpdateLoop() {
+        switch(this.gameState) {
+            case 'MENU':
+                this.updateMenu();
+                break;
+            case 'GAMEPLAY':
+                this.updatePhysics();
+                this.updateAI();
+                this.checkWinConditions();
+                break;
+            case 'AD_PLAYBACK':
+                this.adManager.displayAd();
+                break;
+        }
+    }
+    
+    onMatchComplete(victory) {
+        this.calculateRewards();
+        this.showResultsScreen();
+        
+        // Trigger interstitial every 3 sessions
+        if (this.sessionCount % 3 === 0) {
+            this.gameState = 'AD_PLAYBACK';
+            this.adManager.showInterstitial();
+        }
+    }
+}
+```
+
+### **7.2 Data Structure**
+
+```javascript
+// Player Save Data Structure
+const playerData = {
+    currency: {
+        stardust: 1250,
+        gems: 45
+    },
+    unlockedCharacters: ['swift', 'brute', 'balanced', 'ninja'],
+    unlockedArenas: [1, 2, 3, 4],
+    gameSettings: {
+        musicVolume: 0.8,
+        sfxVolume: 1.0,
+        controls: 'MOUSE_KEYBOARD'
+    },
+    statistics: {
+        matchesPlayed: 47,
+        matchesWon: 28,
+        totalKnockouts: 89,
+        highestWave: 12
+    }
+};
+
+// Character Data Structure
+const characterTemplate = {
+    id: 'ninja',
+    name: 'Ninja',
+    rarity: 'RARE',
+    stats: {
+        weight: 2,
+        power: 3,
+        agility: 10,
+        health: 100
+    },
+    unlockCost: {
+        currency: 'STARDUST',
+        amount: 500
+    },
+    isUnlocked: false
+};
+```
+
+### **7.3 GamePix API Integration**
+
+```javascript
+// GamePix SDK Integration Points
+class GamePixIntegration {
+    constructor() {
+        this.sdk = window.GamePixSDK;
+        this.initialized = false;
+    }
+    
+    initialize() {
+        this.sdk.init({
+            gameId: 'gravity_gladiator_001',
+            onAdLoaded: this.onAdReady.bind(this),
+            onAdError: this.onAdError.bind(this)
+        });
+    }
+    
+    // Show interstitial ad
+    showInterstitial() {
+        this.sdk.ad.showInterstitial()
+            .then(() => console.log('Ad completed'))
+            .catch(err => console.log('Ad skipped or failed'));
+    }
+    
+    // Show rewarded ad
+    showRewardedAd(rewardType) {
+        return this.sdk.ad.showRewarded()
+            .then(() => this.grantReward(rewardType))
+            .catch(err => console.log('Rewarded ad not completed'));
+    }
+    
+    // Process IAP
+    purchaseGemPackage(packageId) {
+        this.sdk.iap.purchase(packageId)
+            .then(receipt => this.grantGems(receipt.amount))
+            .catch(err => console.log('Purchase failed'));
+    }
+}
+```
+
+---
+
+## **8. Art & Audio Direction**
+
+### **8.1 Visual Style**
+- **Theme:** Sci-fi gladiator arena in space
+- **Art Style:** Low-poly 3D with vibrant colors
+- **Inspiration:** Overwatch UI meets Rocket League clarity
+
+### **8.2 UI/UX Design**
+- **Main Menu:** Clean with animated background of current arena
+- **HUD:** Minimal - power charge meter, match timer, opponent counter
+- **Character Select:** 3D model preview with stat comparisons
+
+### **8.3 Sound Design**
+- **Music:** Epic electronic orchestral for menus, intense synth for gameplay
+- **SFX:** Punch impacts, metal crashes, sci-fi energy sounds, crowd reactions
+- **Audio Feedback:** Distinct sounds for charging attacks, eliminations, hazard activations
+
+---
+
+## **9. Development Timeline** (8-12 weeks)
+
+### **Phase 1: Core Prototype** (3 weeks)
+- Basic physics engine
+- Single arena with one gladiator
+- Core combat mechanics
+
+### **Phase 2: Content Creation** (4 weeks)
+- All 12 gladiators and 8 arenas
+- AI opponent system
+- Progression and economy
+
+### **Phase 3: Polish & Integration** (3 weeks)
+- GamePix SDK integration
+- UI/UX polish
+- Sound design and music
+- Testing and balancing
+
+### **Phase 4: Launch** (1 week)
+- GamePix platform submission
+- Marketing assets creation
+- Initial bug fixing
+
+---
+
+## **10. Success Metrics & KPIs**
+
+### **Primary Metrics**
+- **Retention:** Day 1: 40%, Day 7: 15%, Day 30: 5%
+- **ARPDAU:** $0.08-$0.12
+- **Session Length:** 4.5 minutes average
+- **Ad Impressions:** 3.5 per daily active user
+
+### **Monetization Goals**
+- **IAP Conversion:** 2.5% of players
+- **Ad Engagement:** 25% rewarded ad participation
+- **Target eCPM:** $8-12 for interstitial ads
+
+
+
