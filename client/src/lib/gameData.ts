@@ -234,10 +234,28 @@ export function calculateForce(attackPower: number, chargeMultiplier: number, ta
 // Convert gladiator stats to movement parameters
 export function getMovementStats(character: Character) {
   const { weight, agility } = character.stats;
+  
+  // Weight-compensated acceleration for balanced gameplay
+  // Base acceleration + agility bonus, compensated by weight
+  const baseAcceleration = 4.5;
+  const agilityBonus = agility * 0.6;
+  const weightPenalty = weight * 0.15;
+  const acceleration = Math.max(2.0, baseAcceleration + agilityBonus - weightPenalty);
+  
+  // Max velocity inversely proportional to weight, higher base for faster gameplay
+  const maxVelocity = Math.max(8, 15 - (weight * 0.4));
+  
+  // Rotation speed scales with agility, with higher base multiplier
+  const rotationSpeed = agility * 0.15;
+  
   return {
-    maxVelocity: 10 - (weight * 0.5), // Heavier = slower max speed
-    acceleration: agility * 0.3, // Agility affects acceleration
-    rotationSpeed: agility * 0.1, // Agility affects turning
-    mass: weight // Used for momentum calculations
+    maxVelocity,
+    acceleration,
+    rotationSpeed,
+    mass: weight,
+    // New: braking power for better control
+    brakingPower: agility * 0.5,
+    // New: dampening factor for smoother movement
+    dampening: 0.015
   };
 }

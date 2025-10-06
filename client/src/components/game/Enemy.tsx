@@ -7,6 +7,7 @@ import { Character, getMovementStats, calculateForce } from '../../lib/gameData'
 import { useGameStore } from '../../lib/stores/useGameStore';
 import { useAudio } from '../../lib/stores/useAudio';
 import { useParticleStore, createImpactParticles } from '../../lib/stores/useParticleStore';
+import { triggerCameraShake } from './CameraController';
 
 interface EnemyProps {
   character: Character;
@@ -150,8 +151,25 @@ const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProp
         break;
 
       case 'approach':
-        // Move towards player (scaled by difficulty)
-        physics.applyThrust(bodyIndex, direction, movementStats.acceleration * character.stats.weight * 0.8 * difficultyMultiplier);
+        // Predictive targeting: aim for where player will be
+        const playerVelocity = playerBody.velocity || new THREE.Vector3(0, 0, 0);
+        const interceptTime = distance / (movementStats.maxVelocity * 0.7);
+        const predictedPosition = playerBody.position.clone().add(
+          playerVelocity.clone().multiplyScalar(interceptTime * difficultyMultiplier)
+        );
+        
+        const interceptDirection = new THREE.Vector3()
+          .subVectors(predictedPosition, body.position)
+          .normalize();
+        
+        // Use improved movement stats
+        physics.applyThrust(bodyIndex, interceptDirection, movementStats.acceleration * 10 * difficultyMultiplier);
+        
+        // Apply velocity clamping
+        const currentSpeed = body.velocity.length();
+        if (currentSpeed > movementStats.maxVelocity) {
+          body.velocity.normalize().multiplyScalar(movementStats.maxVelocity);
+        }
         break;
 
       case 'attack':
@@ -199,13 +217,18 @@ const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProp
 
     // Play hit sound
     playHit();
+    
+    // Trigger camera shake
+    const shakeIntensity = 0.4 * difficultyMultiplier;
+    triggerCameraShake(shakeIntensity, 0.15);
 
     // Create impact particles at player position
     const impactColor = new THREE.Color('#ff0000');
-    const particles = createImpactParticles(playerBody.position, impactColor, 20);
+    const particleCount = 25 + Math.floor(difficultyMultiplier * 10);
+    const particles = createImpactParticles(playerBody.position, impactColor, particleCount);
     addEffect(particles);
 
-    console.log(`Enemy attack: Force: ${force.toFixed(2)}, Damage: ${damage}`);
+    console.log(`Enemy attack: Force: ${force.toFixed(2)}, Damage: ${damage}, Wave: ${currentWave}`);
   };
 
   return (

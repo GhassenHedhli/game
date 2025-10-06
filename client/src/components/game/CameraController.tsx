@@ -1,5 +1,5 @@
 import { useFrame, useThree } from '@react-three/fiber';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { ZeroGravityPhysics } from '../../lib/physics';
 
@@ -9,11 +9,21 @@ interface CameraControllerProps {
   enemyBodyIndex: number;
 }
 
+// Camera shake state
+let shakeIntensity = 0;
+let shakeDuration = 0;
+
+export const triggerCameraShake = (intensity: number = 0.3, duration: number = 0.2) => {
+  shakeIntensity = intensity;
+  shakeDuration = duration;
+};
+
 const CameraController = ({ physics, playerBodyIndex, enemyBodyIndex }: CameraControllerProps) => {
   const { camera } = useThree();
   const targetPosition = useRef(new THREE.Vector3(0, 5, 10));
   const targetLookAt = useRef(new THREE.Vector3(0, 0, 0));
   const currentLookAt = useRef(new THREE.Vector3(0, 0, 0));
+  const shakeOffset = useRef(new THREE.Vector3(0, 0, 0));
 
   const ARENA_RADIUS = 20;
   const MIN_CAMERA_DISTANCE = 15;
@@ -26,7 +36,7 @@ const CameraController = ({ physics, playerBodyIndex, enemyBodyIndex }: CameraCo
     currentLookAt.current.set(0, 0, 0);
   }, [camera]);
 
-  useFrame(() => {
+  useFrame((state, delta) => {
     const playerBody = physics.getBody(playerBodyIndex);
     const enemyBody = physics.getBody(enemyBodyIndex);
 
@@ -71,9 +81,23 @@ const CameraController = ({ physics, playerBodyIndex, enemyBodyIndex }: CameraCo
 
     // Set target look-at point
     targetLookAt.current.copy(focusPoint);
+    
+    // Update camera shake
+    if (shakeDuration > 0) {
+      shakeDuration -= delta;
+      const currentIntensity = shakeIntensity * (shakeDuration / 0.2); // Decay over time
+      shakeOffset.current.set(
+        (Math.random() - 0.5) * currentIntensity,
+        (Math.random() - 0.5) * currentIntensity,
+        (Math.random() - 0.5) * currentIntensity
+      );
+    } else {
+      shakeOffset.current.set(0, 0, 0);
+    }
 
-    // Smoothly interpolate camera position
-    camera.position.lerp(targetPosition.current, 0.05);
+    // Smoothly interpolate camera position with shake
+    const finalPosition = targetPosition.current.clone().add(shakeOffset.current);
+    camera.position.lerp(finalPosition, 0.05);
 
     // Smoothly interpolate look-at target, then apply it
     currentLookAt.current.lerp(targetLookAt.current, 0.05);

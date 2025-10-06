@@ -8,6 +8,7 @@ import { Character, getMovementStats, calculateForce } from '../../lib/gameData'
 import { useGameStore } from '../../lib/stores/useGameStore';
 import { useAudio } from '../../lib/stores/useAudio';
 import { useParticleStore, createImpactParticles } from '../../lib/stores/useParticleStore';
+import { triggerCameraShake } from './CameraController';
 
 interface PlayerProps {
   character: Character;
@@ -71,17 +72,35 @@ const Player = ({ character, physics, onBodyCreated, enemyBodyIndex }: PlayerPro
     if (controls.thrustLeft) thrustVector.x -= 1;
     if (controls.thrustRight) thrustVector.x += 1;
 
-    // Apply thrust
+    // Apply thrust with improved acceleration
     if (thrustVector.length() > 0) {
-      physics.applyThrust(bodyIndex, thrustVector, movementStats.acceleration * character.stats.weight);
+      // Use weight-compensated acceleration from movement stats
+      physics.applyThrust(bodyIndex, thrustVector, movementStats.acceleration * 10);
+      
+      // Create thrust particles for visual feedback
+      if (Math.random() < 0.3) {
+        const thrustColor = new THREE.Color(character.color);
+        const thrustParticles = createImpactParticles(
+          body.position.clone().sub(thrustVector.normalize().multiplyScalar(1.5)),
+          thrustColor,
+          3
+        );
+        addEffect(thrustParticles);
+      }
+    }
+    
+    // Apply velocity clamping based on character's max velocity
+    const currentSpeed = body.velocity.length();
+    if (currentSpeed > movementStats.maxVelocity) {
+      body.velocity.normalize().multiplyScalar(movementStats.maxVelocity);
     }
 
-    // Rotation controls
+    // Rotation controls with improved responsiveness
     if (controls.rotateLeft) {
-      meshRef.current.rotation.z += movementStats.rotationSpeed * delta;
+      meshRef.current.rotation.z += movementStats.rotationSpeed * delta * 10;
     }
     if (controls.rotateRight) {
-      meshRef.current.rotation.z -= movementStats.rotationSpeed * delta;
+      meshRef.current.rotation.z -= movementStats.rotationSpeed * delta * 10;
     }
 
     // Charge attack
@@ -139,10 +158,14 @@ const Player = ({ character, physics, onBodyCreated, enemyBodyIndex }: PlayerPro
 
     // Play hit sound
     playHit();
+    
+    // Trigger camera shake based on attack strength
+    const shakeIntensity = isCharged ? 0.8 * (charge / 100) : 0.3;
+    triggerCameraShake(shakeIntensity, 0.2);
 
     // Create impact particles at enemy position
     const impactColor = isCharged ? new THREE.Color('#ffff00') : new THREE.Color('#ff6600');
-    const particleCount = isCharged ? 30 : 20;
+    const particleCount = isCharged ? 40 + (charge / 100) * 30 : 25;
     const particles = createImpactParticles(enemyBody.position, impactColor, particleCount);
     addEffect(particles);
 
