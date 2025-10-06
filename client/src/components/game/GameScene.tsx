@@ -4,6 +4,7 @@ import * as THREE from 'three';
 
 import { useGameStore } from '../../lib/stores/useGameStore';
 import { useParticleStore } from '../../lib/stores/useParticleStore';
+import { useAudio } from '../../lib/stores/useAudio';
 import { ZeroGravityPhysics } from '../../lib/physics';
 import { CHARACTERS, ARENAS } from '../../lib/gameData';
 import Arena from './Arena';
@@ -27,6 +28,7 @@ const GameScene = () => {
   } = useGameStore();
 
   const { effects, removeEffect } = useParticleStore();
+  const { playSuccess } = useAudio();
 
   const physicsRef = useRef(new ZeroGravityPhysics());
   const [playerBodyIndex, setPlayerBodyIndex] = useState<number>(-1);
@@ -48,6 +50,9 @@ const GameScene = () => {
     // Check victory/defeat conditions
     if (isMatchActive) {
       if (enemyHealth <= 0) {
+        // Play elimination sound
+        playSuccess();
+        
         // In endless mode, respawn enemy for next wave
         if (useGameStore.getState().gameMode === 'endless') {
           console.log('Enemy defeated! Advancing to next wave...');
@@ -81,6 +86,9 @@ const GameScene = () => {
     }
 
     if (enemyBody && physicsRef.current.isOutOfBounds(enemyBody.position)) {
+      // Play elimination sound
+      playSuccess();
+      
       // In endless mode, respawn enemy for next wave
       if (useGameStore.getState().gameMode === 'endless') {
         console.log('Enemy eliminated by boundary! Advancing to next wave...');
