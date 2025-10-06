@@ -81,6 +81,60 @@ export const CHARACTERS: Record<string, Character> = {
     unlockCost: { currency: 'gems', amount: 100 },
     description: 'Immovable object with unstoppable force',
     color: '#ffaa00'
+  },
+  phantom: {
+    id: 'phantom',
+    name: 'Phantom',
+    rarity: 'rare',
+    stats: { weight: 1, power: 2, agility: 9, health: 90 },
+    unlockCost: { currency: 'stardust', amount: 450 },
+    description: 'Ghostly speed makes this the lightest gladiator',
+    color: '#00ffff'
+  },
+  juggernaut: {
+    id: 'juggernaut',
+    name: 'Juggernaut',
+    rarity: 'epic',
+    stats: { weight: 9, power: 8, agility: 2, health: 180 },
+    unlockCost: { currency: 'stardust', amount: 750 },
+    description: 'Unstoppable momentum with crushing attacks',
+    color: '#ff6600'
+  },
+  viper: {
+    id: 'viper',
+    name: 'Viper',
+    rarity: 'rare',
+    stats: { weight: 4, power: 6, agility: 7, health: 110 },
+    unlockCost: { currency: 'stardust', amount: 550 },
+    description: 'Quick strikes with venomous precision',
+    color: '#00ff00'
+  },
+  colossus: {
+    id: 'colossus',
+    name: 'Colossus',
+    rarity: 'epic',
+    stats: { weight: 9, power: 7, agility: 1, health: 190 },
+    unlockCost: { currency: 'stardust', amount: 850 },
+    description: 'Massive size provides incredible defense',
+    color: '#888888'
+  },
+  wraith: {
+    id: 'wraith',
+    name: 'Wraith',
+    rarity: 'rare',
+    stats: { weight: 3, power: 5, agility: 8, health: 105 },
+    unlockCost: { currency: 'stardust', amount: 600 },
+    description: 'Ethereal fighter with balanced offense',
+    color: '#cc00ff'
+  },
+  sentinel: {
+    id: 'sentinel',
+    name: 'Sentinel',
+    rarity: 'epic',
+    stats: { weight: 6, power: 6, agility: 6, health: 160 },
+    unlockCost: { currency: 'stardust', amount: 700 },
+    description: 'Guardian-class with perfect equilibrium',
+    color: '#0099ff'
   }
 };
 
@@ -124,6 +178,51 @@ export const ARENAS: Record<number, Arena> = {
     description: 'Rotating spike balls orbit the arena',
     backgroundColor: '#221100',
     hazardColors: { spikes: '#ffaa00' }
+  },
+  5: {
+    id: 5,
+    name: 'Crusher Colosseum',
+    difficulty: 'medium',
+    hazards: ['crushers'],
+    unlockCost: 500,
+    description: 'Rhythmic crushers slam from multiple directions',
+    backgroundColor: '#220022',
+    hazardColors: { crushers: '#aa00aa' }
+  },
+  6: {
+    id: 6,
+    name: 'Vortex Void',
+    difficulty: 'hard',
+    hazards: ['vortex'],
+    unlockCost: 600,
+    description: 'Gravity vortex pulls fighters toward the center',
+    backgroundColor: '#000033',
+    hazardColors: { vortex: '#0066ff' }
+  },
+  7: {
+    id: 7,
+    name: 'Electro Arena',
+    difficulty: 'hard',
+    hazards: ['lightning'],
+    unlockCost: 700,
+    description: 'Random lightning strikes across the battlefield',
+    backgroundColor: '#002200',
+    hazardColors: { lightning: '#ffff00' }
+  },
+  8: {
+    id: 8,
+    name: 'Chaos Chamber',
+    difficulty: 'expert',
+    hazards: ['lasers', 'pistons', 'spikes', 'lightning'],
+    unlockCost: 800,
+    description: 'All hazards combined in ultimate chaos',
+    backgroundColor: '#330000',
+    hazardColors: { 
+      lasers: '#ff0066', 
+      pistons: '#666666', 
+      spikes: '#ffaa00',
+      lightning: '#ffff00'
+    }
   }
 };
 

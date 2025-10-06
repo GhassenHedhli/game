@@ -10,15 +10,14 @@ const CharacterSelection = () => {
     setGameState, 
     setCurrentArena,
     spendStardust,
-    unlockCharacter
+    unlockCharacter,
+    unlockArena
   } = useGameStore();
   
   const [selectedArena, setSelectedArena] = useState(1);
 
   const availableCharacters = Object.values(CHARACTERS);
-  const availableArenas = Object.values(ARENAS).filter(arena => 
-    playerData.unlockedArenas.includes(arena.id)
-  );
+  const allArenas = Object.values(ARENAS);
 
   const startBattle = () => {
     setCurrentArena(selectedArena);
@@ -31,6 +30,13 @@ const CharacterSelection = () => {
       if (spendStardust(character.unlockCost.amount)) {
         unlockCharacter(characterId);
       }
+    }
+  };
+
+  const handleUnlockArena = (arenaId: number) => {
+    const arena = ARENAS[arenaId];
+    if (spendStardust(arena.unlockCost)) {
+      unlockArena(arenaId);
     }
   };
 
@@ -138,8 +144,10 @@ const CharacterSelection = () => {
         <div className="w-1/2 p-6 overflow-y-auto">
           <h2 className="text-xl font-bold text-white mb-4">Arena</h2>
           <div className="space-y-3">
-            {availableArenas.map((arena) => {
+            {allArenas.map((arena) => {
+              const isUnlocked = playerData.unlockedArenas.includes(arena.id);
               const isSelected = selectedArena === arena.id;
+              const canAfford = playerData.stardust >= arena.unlockCost;
 
               return (
                 <div
@@ -147,9 +155,11 @@ const CharacterSelection = () => {
                   className={`p-4 rounded-lg border cursor-pointer transition-all ${
                     isSelected
                       ? 'border-cyan-400 bg-cyan-400/10'
-                      : 'border-white/20 bg-black/20 hover:border-white/40'
+                      : isUnlocked
+                      ? 'border-white/20 bg-black/20 hover:border-white/40'
+                      : 'border-red-400/20 bg-red-900/10'
                   }`}
-                  onClick={() => setSelectedArena(arena.id)}
+                  onClick={() => isUnlocked && setSelectedArena(arena.id)}
                 >
                   {/* Arena preview */}
                   <div 
@@ -165,9 +175,11 @@ const CharacterSelection = () => {
                     ))}
                   </div>
 
-                  <h3 className="text-white font-bold">{arena.name}</h3>
+                  <h3 className={`font-bold ${isUnlocked ? 'text-white' : 'text-gray-500'}`}>
+                    {arena.name}
+                  </h3>
                   <p className="text-white/60 text-sm">{arena.description}</p>
-                  <div className="mt-2">
+                  <div className="mt-2 flex justify-between items-center">
                     <span className={`px-2 py-1 text-xs rounded ${
                       arena.difficulty === 'tutorial' ? 'bg-green-600' :
                       arena.difficulty === 'easy' ? 'bg-blue-600' :
@@ -176,6 +188,24 @@ const CharacterSelection = () => {
                     }`}>
                       {arena.difficulty.toUpperCase()}
                     </span>
+                    
+                    {/* Unlock button */}
+                    {!isUnlocked && arena.unlockCost > 0 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUnlockArena(arena.id);
+                        }}
+                        disabled={!canAfford}
+                        className={`py-1 px-3 text-xs rounded ${
+                          canAfford
+                            ? 'bg-cyan-600 hover:bg-cyan-500 text-white'
+                            : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                        }`}
+                      >
+                        {arena.unlockCost} stardust
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -206,7 +236,7 @@ const CharacterSelection = () => {
 
         <button
           onClick={startBattle}
-          disabled={!playerData.unlockedCharacters.includes(selectedCharacter)}
+          disabled={!playerData.unlockedCharacters.includes(selectedCharacter) || !playerData.unlockedArenas.includes(selectedArena)}
           className="px-8 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold rounded hover:scale-105 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           ENTER ARENA
