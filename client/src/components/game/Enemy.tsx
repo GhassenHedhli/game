@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
+import { useGLTF } from '@react-three/drei';
 
 import { ZeroGravityPhysics } from '../../lib/physics';
 import { Character, getMovementStats, calculateForce } from '../../lib/gameData';
@@ -8,6 +9,9 @@ import { useGameStore } from '../../lib/stores/useGameStore';
 import { useAudio } from '../../lib/stores/useAudio';
 import { useParticleStore, createImpactParticles } from '../../lib/stores/useParticleStore';
 import { triggerCameraShake } from './CameraController';
+
+// Preload the model
+useGLTF.preload('/geometries/enemy_gladiator.glb');
 
 interface EnemyProps {
   character: Character;
@@ -17,7 +21,7 @@ interface EnemyProps {
 }
 
 const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProps) => {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const meshRef = useRef<THREE.Group>(null);
   const [bodyIndex, setBodyIndex] = useState<number>(-1);
   const [aiState, setAiState] = useState<'idle' | 'approach' | 'attack' | 'retreat'>('idle');
   const [attackCooldown, setAttackCooldown] = useState(0);
@@ -28,6 +32,9 @@ const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProp
   const { addEffect } = useParticleStore();
 
   const movementStats = getMovementStats(character);
+  
+  // Load the 3D model
+  const { scene } = useGLTF('/geometries/enemy_gladiator.glb');
   
   // Scale enemy difficulty based on wave (for endless mode)
   const difficultyMultiplier = gameMode === 'endless' ? 1 + (currentWave - 1) * 0.1 : 1;
@@ -232,16 +239,28 @@ const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProp
   };
 
   return (
-    <mesh ref={meshRef}>
-      <boxGeometry args={[2, 2, 2]} />
-      <meshLambertMaterial 
-        color="#ff4444"
-        transparent
-        opacity={0.8}
+    <group ref={meshRef}>
+      {/* 3D Enemy Gladiator Model */}
+      <primitive 
+        object={scene.clone()} 
+        scale={2.5}
+        rotation={[0, 0, 0]}
       />
       
+      {/* Red enemy tint overlay */}
+      <mesh scale={[2, 2, 2]}>
+        <sphereGeometry args={[0.6, 16, 16]} />
+        <meshLambertMaterial 
+          color="#ff4444"
+          transparent
+          opacity={0.25}
+          emissive="#ff0000"
+          emissiveIntensity={0.4}
+        />
+      </mesh>
+      
       {/* AI State indicator */}
-      <mesh position={[0, 2.5, 0]}>
+      <mesh position={[0, 3, 0]}>
         <sphereGeometry args={[0.3, 6, 6]} />
         <meshBasicMaterial 
           color={
@@ -251,6 +270,17 @@ const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProp
           }
           transparent 
           opacity={0.7}
+        />
+      </mesh>
+
+      {/* Aggressive energy aura */}
+      <mesh scale={[2.2, 2.2, 2.2]}>
+        <sphereGeometry args={[0.65, 12, 12]} />
+        <meshBasicMaterial 
+          color="#ff4444" 
+          transparent 
+          opacity={aiState === 'attack' ? 0.2 : 0.1}
+          wireframe
         />
       </mesh>
 
@@ -266,7 +296,7 @@ const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProp
           />
         </mesh>
       )}
-    </mesh>
+    </group>
   );
 };
 

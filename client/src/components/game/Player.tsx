@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber';
-import { useKeyboardControls } from '@react-three/drei';
+import { useKeyboardControls, useGLTF } from '@react-three/drei';
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 
@@ -10,6 +10,9 @@ import { useAudio } from '../../lib/stores/useAudio';
 import { useParticleStore, createImpactParticles } from '../../lib/stores/useParticleStore';
 import { triggerCameraShake } from './CameraController';
 
+// Preload the model
+useGLTF.preload('/geometries/player_gladiator.glb');
+
 interface PlayerProps {
   character: Character;
   physics: ZeroGravityPhysics;
@@ -18,7 +21,7 @@ interface PlayerProps {
 }
 
 const Player = ({ character, physics, onBodyCreated, enemyBodyIndex }: PlayerProps) => {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const meshRef = useRef<THREE.Group>(null);
   const [bodyIndex, setBodyIndex] = useState<number>(-1);
   const [charge, setCharge] = useState(0);
   const [isCharging, setIsCharging] = useState(false);
@@ -31,6 +34,9 @@ const Player = ({ character, physics, onBodyCreated, enemyBodyIndex }: PlayerPro
   const [, get] = useKeyboardControls();
 
   const movementStats = getMovementStats(character);
+  
+  // Load the 3D model
+  const { scene } = useGLTF('/geometries/player_gladiator.glb');
 
   useEffect(() => {
     // Create physics body for player
@@ -75,16 +81,14 @@ const Player = ({ character, physics, onBodyCreated, enemyBodyIndex }: PlayerPro
     // Apply thrust with improved acceleration
     if (thrustVector.length() > 0) {
       // Use weight-compensated acceleration from movement stats
-      physics.applyThrust(bodyIndex, thrustVector, movementStats.acceleration * 10);
+      physics.applyThrust(bodyIndex, thrustVector.clone(), movementStats.acceleration * 10);
       
       // Create thrust particles for visual feedback
       if (Math.random() < 0.3) {
         const thrustColor = new THREE.Color(character.color);
-        const thrustParticles = createImpactParticles(
-          body.position.clone().sub(thrustVector.normalize().multiplyScalar(1.5)),
-          thrustColor,
-          3
-        );
+        const thrustDirection = thrustVector.clone().normalize();
+        const particlePosition = body.position.clone().sub(thrustDirection.multiplyScalar(1.5));
+        const thrustParticles = createImpactParticles(particlePosition, thrustColor, 3);
         addEffect(thrustParticles);
       }
     }
@@ -173,17 +177,29 @@ const Player = ({ character, physics, onBodyCreated, enemyBodyIndex }: PlayerPro
   };
 
   return (
-    <mesh ref={meshRef}>
-      <boxGeometry args={[2, 2, 2]} />
-      <meshLambertMaterial 
-        color={character.color}
-        transparent
-        opacity={isCharging ? 0.8 + (charge / 100) * 0.2 : 0.8}
+    <group ref={meshRef}>
+      {/* 3D Gladiator Model */}
+      <primitive 
+        object={scene.clone()} 
+        scale={2.5}
+        rotation={[0, 0, 0]}
       />
+      
+      {/* Color tint overlay */}
+      <mesh scale={[2, 2, 2]}>
+        <sphereGeometry args={[0.6, 16, 16]} />
+        <meshLambertMaterial 
+          color={character.color}
+          transparent
+          opacity={isCharging ? 0.3 + (charge / 100) * 0.2 : 0.2}
+          emissive={character.color}
+          emissiveIntensity={0.3}
+        />
+      </mesh>
       
       {/* Charge indicator */}
       {isCharging && (
-        <mesh position={[0, 2.5, 0]}>
+        <mesh position={[0, 3, 0]}>
           <sphereGeometry args={[0.5 + (charge / 100), 8, 8]} />
           <meshBasicMaterial 
             color="#ffff00" 
@@ -193,23 +209,17 @@ const Player = ({ character, physics, onBodyCreated, enemyBodyIndex }: PlayerPro
         </mesh>
       )}
 
-      {/* Thrust indicators */}
-      <group>
-        {[0, 1, 2, 3].map((i) => (
-          <mesh 
-            key={i}
-            position={[
-              Math.cos(i * Math.PI * 0.5) * 1.2,
-              Math.sin(i * Math.PI * 0.5) * 1.2,
-              0
-            ]}
-          >
-            <sphereGeometry args={[0.1, 4, 4]} />
-            <meshBasicMaterial color="#00ffff" transparent opacity={0.6} />
-          </mesh>
-        ))}
-      </group>
-    </mesh>
+      {/* Energy aura during movement */}
+      <mesh scale={[2.2, 2.2, 2.2]}>
+        <sphereGeometry args={[0.65, 12, 12]} />
+        <meshBasicMaterial 
+          color={character.color} 
+          transparent 
+          opacity={0.1}
+          wireframe
+        />
+      </mesh>
+    </group>
   );
 };
 
