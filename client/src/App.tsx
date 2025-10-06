@@ -3,7 +3,7 @@ import { Suspense, useEffect } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import "@fontsource/inter";
 
-import { useGameStore } from "./lib/stores/useGameStore";
+import { useGameStore, GameState } from "./lib/stores/useGameStore";
 import MainMenu from "./components/game/MainMenu";
 import CharacterSelection from "./components/game/CharacterSelection";
 import GameScene from "./components/game/GameScene";
@@ -24,11 +24,36 @@ const controls = [
 ];
 
 function App() {
-  const { gameState } = useGameStore();
+  const { gameState, setGameState } = useGameStore();
 
   useEffect(() => {
     console.log("Game state changed to:", gameState);
   }, [gameState]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).GamePix) {
+      (window as any).GamePix.on = (window as any).GamePix.on || {};
+      
+      let previousState: GameState = gameState;
+      
+      (window as any).GamePix.on.pause = function() {
+        console.log('GamePix: Game paused');
+        previousState = gameState;
+        if (gameState === 'playing') {
+          setGameState('paused');
+        }
+      };
+
+      (window as any).GamePix.on.resume = function() {
+        console.log('GamePix: Game resumed');
+        if (gameState === 'paused') {
+          setGameState(previousState === 'paused' ? 'playing' : previousState);
+        }
+      };
+
+      console.log('GamePix pause/resume handlers registered');
+    }
+  }, [gameState, setGameState]);
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>

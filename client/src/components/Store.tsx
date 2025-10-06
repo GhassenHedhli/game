@@ -55,6 +55,7 @@ const Store = ({ onClose }: StoreProps) => {
     const totalGems = pkg.gems + (pkg.bonus || 0);
     addGems(totalGems);
     setSelectedPackage(null);
+    console.log(`Purchase successful! Added ${totalGems} gems`);
   };
 
   return (
@@ -165,6 +166,7 @@ const Store = ({ onClose }: StoreProps) => {
                     amount={selectedPackage.price}
                     currency="USD"
                     intent="CAPTURE"
+                    onSuccess={() => handlePurchaseSuccess(selectedPackage)}
                   />
                 </div>
               </div>

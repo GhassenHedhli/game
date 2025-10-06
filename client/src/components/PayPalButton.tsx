@@ -23,12 +23,14 @@ interface PayPalButtonProps {
   amount: string;
   currency: string;
   intent: string;
+  onSuccess?: (orderData: any) => void;
 }
 
 export default function PayPalButton({
   amount,
   currency,
   intent,
+  onSuccess,
 }: PayPalButtonProps) {
   const createOrder = async () => {
     const orderPayload = {
@@ -61,6 +63,9 @@ export default function PayPalButton({
     console.log("onApprove", data);
     const orderData = await captureOrder(data.orderId);
     console.log("Capture result", orderData);
+    if (onSuccess) {
+      onSuccess(orderData);
+    }
   };
 
   const onCancel = async (data: any) => {
