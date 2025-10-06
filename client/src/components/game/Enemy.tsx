@@ -21,10 +21,13 @@ const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProp
   const [attackCooldown, setAttackCooldown] = useState(0);
   const [stateTimer, setStateTimer] = useState(0);
 
-  const { setPlayerHealth, playerHealth } = useGameStore();
+  const { setPlayerHealth, playerHealth, currentWave, gameMode } = useGameStore();
   const { playHit } = useAudio();
 
   const movementStats = getMovementStats(character);
+  
+  // Scale enemy difficulty based on wave (for endless mode)
+  const difficultyMultiplier = gameMode === 'endless' ? 1 + (currentWave - 1) * 0.1 : 1;
 
   useEffect(() => {
     // Create physics body for enemy
@@ -145,8 +148,8 @@ const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProp
         break;
 
       case 'approach':
-        // Move towards player
-        physics.applyThrust(bodyIndex, direction, movementStats.acceleration * character.stats.weight * 0.8);
+        // Move towards player (scaled by difficulty)
+        physics.applyThrust(bodyIndex, direction, movementStats.acceleration * character.stats.weight * 0.8 * difficultyMultiplier);
         break;
 
       case 'attack':
@@ -174,8 +177,8 @@ const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProp
     const distance = enemyBody.position.distanceTo(playerBody.position);
     if (distance > 4) return;
 
-    // Calculate attack force
-    const baseAttackPower = character.stats.power;
+    // Calculate attack force (scaled by difficulty)
+    const baseAttackPower = character.stats.power * difficultyMultiplier;
     const chargeMultiplier = 1.2; // AI doesn't charge, but hits slightly harder
     const playerWeight = 5; // Assuming player weight
 
@@ -188,8 +191,8 @@ const Enemy = ({ character, physics, onBodyCreated, playerBodyIndex }: EnemyProp
     
     physics.applyForce(playerBodyIndex, knockbackDirection.multiplyScalar(force * 8));
 
-    // Deal damage
-    const damage = Math.min(25, force * 1.5);
+    // Deal damage (scaled by difficulty)
+    const damage = Math.min(25 * difficultyMultiplier, force * 1.5);
     setPlayerHealth(playerHealth - damage);
 
     // Play hit sound

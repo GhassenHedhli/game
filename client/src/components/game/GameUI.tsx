@@ -10,7 +10,9 @@ const GameUI = () => {
     playerCharge, 
     matchTimer,
     setGameState,
-    isMatchActive
+    isMatchActive,
+    gameMode,
+    currentWave
   } = useGameStore();
 
   const character = CHARACTERS[selectedCharacter];
@@ -84,12 +86,24 @@ const GameUI = () => {
           </div>
         </div>
 
-        {/* Match Timer */}
+        {/* Match Timer & Wave Counter */}
         <div className="bg-black/60 backdrop-blur-sm rounded-lg p-4 text-center">
-          <div className="text-white/60 text-sm">Match Time</div>
-          <div className="text-white text-xl font-mono font-bold">
-            {formatTime(matchTimer)}
-          </div>
+          {gameMode === 'endless' && (
+            <>
+              <div className="text-cyan-400 text-2xl font-bold mb-1">
+                Wave {currentWave}
+              </div>
+              <div className="text-white/40 text-xs">Endless Mode</div>
+            </>
+          )}
+          {gameMode !== 'endless' && (
+            <>
+              <div className="text-white/60 text-sm">Match Time</div>
+              <div className="text-white text-xl font-mono font-bold">
+                {formatTime(matchTimer)}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Enemy Status */}

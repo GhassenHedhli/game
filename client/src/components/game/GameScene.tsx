@@ -19,13 +19,15 @@ const GameScene = () => {
     endMatch,
     updateMatchTimer,
     playerHealth,
-    enemyHealth
+    enemyHealth,
+    currentWave
   } = useGameStore();
 
   const physicsRef = useRef(new ZeroGravityPhysics());
   const [playerBodyIndex, setPlayerBodyIndex] = useState<number>(-1);
   const [enemyBodyIndex, setEnemyBodyIndex] = useState<number>(-1);
   const [hazardBodies, setHazardBodies] = useState<number[]>([]);
+  const [enemyKey, setEnemyKey] = useState(0); // Key to force enemy respawn
 
   const selectedCharacterData = CHARACTERS[selectedCharacter];
   const arenaData = ARENAS[currentArena];
@@ -41,7 +43,15 @@ const GameScene = () => {
     // Check victory/defeat conditions
     if (isMatchActive) {
       if (enemyHealth <= 0) {
-        endMatch(true);
+        // In endless mode, respawn enemy for next wave
+        if (useGameStore.getState().gameMode === 'endless') {
+          console.log('Enemy defeated! Advancing to next wave...');
+          useGameStore.getState().nextWave();
+          // Force enemy component to remount
+          setEnemyKey(prev => prev + 1);
+        } else {
+          endMatch(true);
+        }
       } else if (playerHealth <= 0) {
         endMatch(false);
       }
@@ -66,7 +76,14 @@ const GameScene = () => {
     }
 
     if (enemyBody && physicsRef.current.isOutOfBounds(enemyBody.position)) {
-      endMatch(true);
+      // In endless mode, respawn enemy for next wave
+      if (useGameStore.getState().gameMode === 'endless') {
+        console.log('Enemy eliminated by boundary! Advancing to next wave...');
+        useGameStore.getState().nextWave();
+        setEnemyKey(prev => prev + 1); // Force enemy respawn
+      } else {
+        endMatch(true);
+      }
     }
   });
 
@@ -96,6 +113,7 @@ const GameScene = () => {
 
       {/* Enemy */}
       <Enemy
+        key={enemyKey} // Force remount on wave change
         character={selectedCharacterData} // For now, use same character
         physics={physicsRef.current}
         onBodyCreated={setEnemyBodyIndex}

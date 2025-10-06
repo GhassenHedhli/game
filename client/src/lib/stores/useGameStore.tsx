@@ -58,6 +58,8 @@ export interface GameStore {
   startMatch: () => void;
   endMatch: (victory: boolean) => void;
   updateMatchTimer: (delta: number) => void;
+  nextWave: () => void;
+  respawnEnemy: () => void;
   
   // Save/Load
   saveData: () => void;
@@ -146,6 +148,7 @@ export const useGameStore = create<GameStore>()(
     startMatch: () => set({ 
       isMatchActive: true, 
       matchTimer: 0, 
+      currentWave: 1,
       playerHealth: 100, 
       enemyHealth: 100, 
       playerCharge: 0 
@@ -176,6 +179,23 @@ export const useGameStore = create<GameStore>()(
     updateMatchTimer: (delta) => set((state) => ({
       matchTimer: state.matchTimer + delta
     })),
+    
+    nextWave: () => {
+      const state = get();
+      console.log(`Advancing to wave ${state.currentWave + 1}`);
+      set({ 
+        currentWave: state.currentWave + 1,
+        enemyHealth: 100,
+        playerCharge: 0
+      });
+    },
+    
+    respawnEnemy: () => {
+      console.log('Respawning enemy for next wave');
+      set({ 
+        enemyHealth: 100 
+      });
+    },
     
     // Save/Load
     saveData: () => {
