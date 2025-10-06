@@ -1,9 +1,11 @@
 import { useGameStore } from "../../lib/stores/useGameStore";
 import { useEffect, useState } from "react";
+import Store from "../Store";
 
 const MainMenu = () => {
   const { setGameState, setGameMode, playerData, loadData } = useGameStore();
   const [selectedMode, setSelectedMode] = useState<'arcade' | 'endless' | 'dailyChallenge'>('arcade');
+  const [showStore, setShowStore] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -66,6 +68,15 @@ const MainMenu = () => {
             </div>
           </div>
         </div>
+        
+        {/* Store Button */}
+        <button
+          onClick={() => setShowStore(true)}
+          className="w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all duration-200 shadow-lg flex items-center justify-center space-x-2"
+        >
+          <span>💎</span>
+          <span>GEM STORE</span>
+        </button>
 
         {/* Game Mode Selection */}
         <div className="space-y-4">
@@ -107,6 +118,9 @@ const MainMenu = () => {
           <div>Attack: SPACE/J • Charged Slam: K</div>
         </div>
       </div>
+      
+      {/* Store Modal */}
+      {showStore && <Store onClose={() => setShowStore(false)} />}
     </div>
   );
 };

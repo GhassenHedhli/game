@@ -50,7 +50,9 @@ export interface GameStore {
   
   // Player data actions
   addStardust: (amount: number) => void;
+  addGems: (amount: number) => void;
   spendStardust: (amount: number) => boolean;
+  spendGems: (amount: number) => boolean;
   unlockCharacter: (characterId: string) => void;
   unlockArena: (arenaId: number) => void;
   
@@ -117,6 +119,13 @@ export const useGameStore = create<GameStore>()(
       }
     })),
     
+    addGems: (amount) => set((state) => ({
+      playerData: {
+        ...state.playerData,
+        gems: state.playerData.gems + amount
+      }
+    })),
+    
     spendStardust: (amount) => {
       const { playerData } = get();
       if (playerData.stardust >= amount) {
@@ -124,6 +133,20 @@ export const useGameStore = create<GameStore>()(
           playerData: {
             ...state.playerData,
             stardust: state.playerData.stardust - amount
+          }
+        }));
+        return true;
+      }
+      return false;
+    },
+    
+    spendGems: (amount) => {
+      const { playerData } = get();
+      if (playerData.gems >= amount) {
+        set((state) => ({
+          playerData: {
+            ...state.playerData,
+            gems: state.playerData.gems - amount
           }
         }));
         return true;

@@ -1,5 +1,7 @@
 import { useGameStore } from '../../lib/stores/useGameStore';
 import { CHARACTERS, ARENAS } from '../../lib/gameData';
+import { useGamePix } from '../../lib/hooks/useGamePix';
+import { useState, useEffect } from 'react';
 
 const GameUI = () => {
   const { 
@@ -13,8 +15,20 @@ const GameUI = () => {
     isMatchActive,
     gameMode,
     currentWave,
-    lastMatchResult
+    lastMatchResult,
+    addStardust,
+    playerData
   } = useGameStore();
+  
+  const { 
+    trackEvent, 
+    showInterstitialAd, 
+    showRewardAd, 
+    triggerHappyMoment 
+  } = useGamePix();
+  
+  const [showRewardOption, setShowRewardOption] = useState(false);
+  const [adShown, setAdShown] = useState(false);
 
   const character = CHARACTERS[selectedCharacter];
   const arena = ARENAS[currentArena];
@@ -23,6 +37,51 @@ const GameUI = () => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  useEffect(() => {
+    if (!isMatchActive && lastMatchResult && !adShown) {
+      const result = lastMatchResult;
+      
+      if (result.victory) {
+        triggerHappyMoment();
+        trackEvent('level_complete', {
+          score: result.wave || currentArena,
+          level: currentArena,
+          achievements: {}
+        });
+      } else {
+        trackEvent('game_over', {
+          score: result.wave || 0,
+          level: currentArena,
+          achievements: {}
+        });
+      }
+      
+      showInterstitialAd(() => {
+        setShowRewardOption(true);
+      });
+      
+      setAdShown(true);
+    }
+    
+    if (isMatchActive && adShown) {
+      setAdShown(false);
+      setShowRewardOption(false);
+    }
+  }, [isMatchActive, lastMatchResult, adShown, trackEvent, triggerHappyMoment, showInterstitialAd, currentArena, gameMode]);
+
+  const handleWatchRewardAd = () => {
+    showRewardAd(
+      () => {
+        const bonusStardust = 50;
+        addStardust(bonusStardust);
+        setShowRewardOption(false);
+      },
+      () => {
+        console.log('Reward ad completed');
+      }
+    );
   };
 
   if (!isMatchActive) {
@@ -65,6 +124,20 @@ const GameUI = () => {
               <span className="text-yellow-400 font-bold text-xl">+{result?.rewards || 0} ✨</span>
             </div>
           </div>
+
+          {/* Reward Ad Option */}
+          {showRewardOption && (
+            <div className="bg-purple-900/40 rounded-lg p-4 space-y-2 border border-purple-500/50">
+              <div className="text-purple-300 font-bold">Bonus Stardust!</div>
+              <p className="text-white/70 text-sm">Watch a short video to earn +50 Stardust</p>
+              <button
+                onClick={handleWatchRewardAd}
+                className="w-full px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all transform hover:scale-105"
+              >
+                Watch & Earn ✨
+              </button>
+            </div>
+          )}
 
           {/* Continue Button */}
           <button
